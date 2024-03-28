@@ -88,6 +88,43 @@ print("Voronoi polyhedra points: ", points)
 # create voronoi object
 vor = Voronoi(points)
 
+# remove infinity lines
+new_regions = []
+new_vertices = vor.vertices.tolist()
+
+all_ridges = {}
+for (p1, p2), (v1, v2) in zip(vor.ridge_points, vor.ridge_vertices):
+       all_ridges.setdefault(p1,[]).append((p2, v1, v2))
+       all_ridges.setdefault(p2,[]).append((p1, v1, v2))
+
+# print ("ALL RIDGES", all_ridges)
+for p1, region in enumerate(vor.point_region):
+       vertices = vor.regions[region]
+
+       if all(v >= 0 for v in vertices):
+              # finite region
+              new_regions.append(vertices)
+              continue
+       
+       ridges = all_ridges[p1]
+       new_region = [v for v in vertices if v >= 0]
+
+       for p2, v1, v2 in ridges:
+                if v2 < 0:
+                        v1, v2 = v2, v1
+
+                if v1 >= 0:
+                       # finite ridge: already in the region
+                       continue
+
+                # Compute the missing endpoint of an infinite ridge
+
+                t = vor.points[p2] - vor.points[p1] # tangent
+                t /= np.linalg.norm(t)
+                n = np.array([-t[1], t[0]])
+                
+
+
 # get vertices
 vor_vertices = vor.vertices
 
