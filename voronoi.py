@@ -5,6 +5,7 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 from matplotlib import pyplot as plt
 import cv2
 import png_maker
+import teste
 
 # voronoi points array
 points = []
@@ -88,21 +89,21 @@ print("Voronoi polyhedra points: ", points)
 # create voronoi object
 vor = Voronoi(points)
 
-# get vertices
-vor_vertices = vor.vertices
+# plot
+regions, vertices = teste.voronoi_finite_polygons_2d(vor)
 
-# create regions
-vor_regions = vor.regions
+fig, ax = plt.subplots(figsize=(6*1.645, 6*1.135))  # Adjust the width and height as needed
 
-fig = voronoi_plot_2d(vor, ax = None, show_vertices = False, line_width = 2, line_alpha = 0.2, linestyle='solid')
+# colorize
+for region in regions:
+    polygon = vertices[region]
+    plt.fill(*zip(*polygon), facecolor='none', edgecolor='gray', linewidth=1, alpha=0.8)
 
-# fig.set_figwidth(WIDTH/dpi)
-# fig.set_figheight(HEIGHT/dpi)
-
-fig.set_figwidth(6*1.645)
-fig.set_figheight(6*1.135)
-
-#plt.axis('off')
+ax.axis('off')
+ax.plot(points[:,0], points[:,1], "o", markersize=4, color="orange", markeredgecolor='black')
+plt.xlim(vor.min_bound[0] - 20, vor.max_bound[0] + 20)
+plt.ylim(vor.min_bound[1] - 20, vor.max_bound[1] + 20)
 plt.savefig("mask.png", bbox_inches='tight')
 png_maker.make_png("mask.png")
+
 plt.show()
