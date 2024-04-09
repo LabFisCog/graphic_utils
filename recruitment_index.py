@@ -8,12 +8,6 @@ df = pd.read_excel('/Users/felipepicard/Documents/01- Fisiologia da Cognição/E
 # figure scale (set as 1 for arbitrary values)
 scale = 1
 
-#print(df[['sítio', 'r2', 'r3']])
-#print(df.iloc[[1], [1]])
-cell_value = df.iloc[1, 1]
-print (cell_value) 
-# print (len(df.iloc[1]))
-
 def calculate_weight(ps, ss):
     # getting the x and y coordinates for the primary and secondary sites
     ps_x = df.iloc[ps, 1]
@@ -32,6 +26,7 @@ def calculate_weight(ps, ss):
 # go through the columns in the dataframe (df)
 for site in range(len(df)):
     weight = []
+    buffer = []
     # go through the secondary responses for the primary site (sr_ps)
     for response in range(4,8):
         ps_index = site
@@ -43,9 +38,24 @@ for site in range(len(df)):
             ss_index = secondary_site
             pr_ss = df.iloc[secondary_site, 3]
             if (pr_ss == sr_ps):
+                #print("PR_SEC_SITE", site+1, pr_ss)
+                #print("SR_PRI_SITE", site+1, sr_ps)
                 #print("Primary response in secondary site: ", pr_ss)
                 w = calculate_weight(ps_index, ss_index)
-                weight.append(w)
+                buffer.append(w)
+                #print("BUFFER", site+1, buffer)
+        #print("NEXT LIMB!!!!")
+        # sum all the values in buffer and divide by its length to get the mean weight
+        mean_weight = 0
+        if (len(buffer) != 0):
+            mean_weight = sum(buffer)/len(buffer)
+        # add the mean_weight to the weight array
+        #print("MEAN WEIGHT", site+1, mean_weight)
+        weight.append(mean_weight)
+        # free/clear the buffer
+        buffer.clear()
+
+    #print("WEIGHT", site+1, weight)
     # sum all the weights in the weight list to calculate the recruitment index (ri)
     ri = sum(weight)
     print("Recruitment Index", site+1, ": ", ri)
