@@ -105,13 +105,13 @@ def rindex(sheet_name):
             res = df.iloc[site, response]
 
             segments = find_segments(res)
-            print ("SEGMENTS", segments)
+            #print ("SEGMENTS", segments)
 
             if segments:
                 for elementos in segments:
                     buffer.append(elementos)
 
-            print ("BUFFER", buffer)
+            #print ("BUFFER", buffer)
             # print("RESPONSE:", res)
             #print("NEXT SITE!!!!")
         global nr 
@@ -124,7 +124,7 @@ def rindex(sheet_name):
             all_segments.append(elementos)
 
 
-        print(all_segments)
+        # print(all_segments)
 
         # free/clear the buffer for the next stimulation site
         buffer.clear()
@@ -132,22 +132,66 @@ def rindex(sheet_name):
         # TO DO
         # create a list for the filtered_segments
         filtered_segments = []
-        
+        # path = []
+        for path in all_segments:
+            if path not in filtered_segments:
+                filtered_segments.append(path)
+
+        print('caminho completo', filtered_segments)
+            
+            
         # list(set(filtered_segments))
         
         # save each segment in the filtered_segments only once, without repetition
 
-
+        
         # convert the name of the segments from strings to its anatomical distance. i.e.: 'sc' to 56 cm and save it to the segment_sizes list
         segment_sizes = []
-        
+        for elemento in filtered_segments:
+            if elemento == 'h':
+                segment_sizes.append(h)   
+
+            if elemento == 'n':
+                segment_sizes.append(n)  
+
+            if elemento == 'sc':  
+                segment_sizes.append(sc)
+
+            if elemento == 'si':  
+                segment_sizes.append(si)
+
+            if elemento == 't1':  
+                segment_sizes.append(t1)
+
+            if elemento == 't2':  
+                segment_sizes.append(t2)
+
+            if elemento == 'ic':  
+                segment_sizes.append(ic) 
+
+            if elemento == 'ii':  
+                segment_sizes.append(ii)
+
+            if elemento == 'l':  
+                segment_sizes.append(l)
+
+            if elemento == 'f':  
+                segment_sizes.append(f)
+
+            if elemento == 'mt':  
+                segment_sizes.append(mt)
+
+            if elemento == 'md':  
+                segment_sizes.append(md)
 
         # sum the segment sizes and add (append) it to the weights list
         ri = sum(segment_sizes)
+        print('tamanho do caminho:',ri)
+
         weights.append(ri)
         # print the recruitment index with "," instead of "." for decimal places. ex.: 12.5 -> 12,5
         ri_form = str(ri)[:6].replace(".",",")
-        # print("Recruitment Index", site+1, ": ", ri_form)
+        print("Recruitment Index", site+1, ": ", ri_form)
         # print(ri_form)
 
     # convert the weights array to a numpy array so we can work with numpy functions
@@ -155,10 +199,11 @@ def rindex(sheet_name):
     # get the maximum value in our array
     v_max = np.max(weights)
     # divide all the items in our array by the max value, so we get a new array whose values range from 0 to 1, and the max value is 1 (max_value/max_value = 1)
-    # weights = weights/v_max
+    weights = weights/v_max
+    print("RECRUITMENT INDEXES:", weights)
 
     # run the colorize function, that can be found in the colorize3.py file. 
-    # c.colorize(weights, sheet_name, v_max)
+    c.colorize(weights, sheet_name, v_max)
 
 # open dataframe with each muscle from the excel tables
 df = pd.read_excel('/Users/felipepicard/Documents/01- Fisiologia da Cognição/Experimentos/01 - Mapeamento Motor Callithrix/analise_sitios.xlsx', 'cabeça')
