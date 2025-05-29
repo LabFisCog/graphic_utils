@@ -20,7 +20,7 @@ python voronoi.py path/to/image.png
 2. The user manually selects seed points by clicking on the image.
 3. Selected points are stored in the points array.
 4. A Voronoi object is created using these points.
-5. The Voronoi diagram is plotted and saved as a PNG file with a white and transparent background.
+5. The Voronoi diagram is plotted and saved as a PNG and SVG with an overlay of the original image and the Voronoi diagram.
 
 **Troubleshooting & Notes**
 Image Path
