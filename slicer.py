@@ -17,7 +17,7 @@ if len(sys.argv) != 3:
 f = sys.argv[1]
 n_sections = sys.argv[2]
 
-interpoint_distance = 40
+interpoint_distance = 2
 
 def get_contours(img):
     # gets the image and extracts the points from the outter and inner contours
@@ -70,9 +70,9 @@ def get_contours(img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
    
-    print("UP!!! ", up)
-    print("\n\n\n")
-    print("DOWN!!!", down)
+    # print("UP!!! ", up)
+    # print("\n\n\n")
+    # print("DOWN!!!", down)
 
     # retornar uma lista de tuplas (x, y) para cada contorno ex.: out_cont = [(x1, y1), (x2, y2), (x3, y3)...]
     return up, down
@@ -99,12 +99,26 @@ def interpolate_contours(contour, n_sections):
 
 # OPCIONAL (FAZER POR ULTIMO)
 def compute_centerline(outer_contour, inner_contour):
+    centerpoints = []
     # gets the outer and inner contour and computes the centerline between them
+    for outer_point, inner_point in zip(outer_contour, inner_contour):
+        print('outer', outer_point)
+        print('inner', inner_point)
 
+        
 
-    return
+        center_x = ((outer_point[0] - inner_point[0])/2) + inner_point[0]
+        center_y = ((outer_point[1] - inner_point[1])/2) + inner_point[1]
+        # centerpoints = np.linalg.norm(outer_array - inner_array)/2
 
+        centerpoint = (center_x, center_y)
+        print("centerpoint ", centerpoint)
+        centerpoints.append(centerpoint)
+        print("centerpoints lista:  ", centerpoints)
+        
+    return centerpoints
 
+compute_centerline(up_dataset, down_dataset)
 
 
 def divide_sections(centerline, outer_contour, inner_contour, n_sections):
