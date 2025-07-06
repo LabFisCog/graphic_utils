@@ -3,7 +3,7 @@
 A repository for utilities related to the visual representation of experimental data.
 
 ## Contents
-- `voronoi.py`
+- `voronoi_standalone.py`
 
 ## `voronoi_standalone.py`
 
@@ -39,3 +39,39 @@ Update the figsize parameter at line 95 with the corrected aspect ratio, scaled 
 Style Customization
 The appearance of the generated plot (colors, line widths, etc.) can be customized by editing the relevant functions between lines 215-220.
 The apperance of the SVG file can be changed by altering the background image layer (line 36), the polygons layer (layers 184-189) and the labels layer (lines 192-213). 
+
+## `colorizer.py`
+
+**Objective**  
+Generate a color‑coded Voronoi diagram from seed‐point coordinates and a color table stored in an Excel sheet.  
+
+**Usage**  
+```bash
+python colorizer_script.py path/to/sheet.xlsx output_file_name
+```
+- path/to/sheet.xlsx – Excel file containing point positions and coloring information.
+- output_file_name - Name of the png image generated after the script is run.
+
+  **How it works**
+  1. Read the colorizing_table: the table contains columns for the sites of the voronoi polyhedra, the colors (in RGB) for each site and/or normalized grayscale values (from 0 to 1) as well as the max unnormalized grayscale value. There are also dropdown menus for the kind of colorizing and the positions sheet. More options for these menus can be added in the col_options and pos_options column, respectively.
+  2. The values in the colorizing_table get stored in a dictionary in the `populate` function.
+  3. The `colorize` function gets the sites from the positions sheet and colors them with the colors from the colorizer_table. Sites without color entries are interpreted as non-available sites, and get a hash patterning to indicate that.
+  4. A png image gets generated and saved in the script's folder with the name given in the 'output_file_name' field.
+ 
+
+**Troubleshooting & Notes**
+Spreadsheet Path
+Ensure the Excel file exists and the path is typed correctly. If the sheet is in the same folder: 'python colorizer.py sheet.xlsx output_file_name'. Otherwise, provide the full path:
+'python colorizer.py /full/path/to/sheet.xlsx output_file_name'
+
+Script Path
+The code will only run if you are in the folder containing the script (python colorizer.py output_file_name) or if you include the path to the script (python path/to/colorizer.py output_file_name).
+
+Color Modes (in the colorizing_table)
+color – uses first RGB entry per site. Invalid/empty cells are interpreted as non-available sites, and are represented as a hatched site in the output image.
+grayscale – converts normalized values to gray tones (higher values ➜ darker). Empty cells are also represented as hatched sites in this function.
+
+Style Customization
+Color-bar values can be customized by changing relevant lines between 155-165.
+Hatching styles can be changed in lines 152-154 and 165-167.
+Figure size can be changed in the `figsize` argument in line 114.
