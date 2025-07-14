@@ -5,6 +5,7 @@
 import numpy as np
 import cv2
 import sys
+import os
 from scipy.interpolate import interp1d, CubicSpline
 import matplotlib.pyplot as plt
 
@@ -16,9 +17,10 @@ if len(sys.argv) != 3:
 f = sys.argv[1]
 n_sections = int(sys.argv[2])
 
-interpoint_distance = 40
+interpoint_distance = 20
 dist_threshold = 10
 resolution = 600
+offset = 10
 
 def get_contours(img):
     # gets the image and extracts the points from the outter and inner contours
@@ -129,17 +131,56 @@ def divide_sections(centerline, outer_contour, inner_contour, n_sections):
     return
 
 
-def visualize(img, outer_points, inner_points):
+def visualize(img, upper_points, lower_points):
     # displays the results as an image
+    image = cv2.imread(img)
+    height, width = image.shape[:2]
+    output_path = "output_slices_folder"
 
+    os.makedirs(output_path, exist_ok=True)
+
+    sections = []
+
+    for i in range (1, len(upper_points)):
+        # section's upper points
+        pu1 = upper_points[i-1]
+        pu2 = upper_points[i]
+
+        # section's lower points
+        pl1 = lower_points[i-1]
+        pl2 = lower_points[i]
+
+        # apply an offset
+        pu1[1] -= offset
+        pu2[1] -= offset
+        pl1[1] += offset
+        pl2[1] += offset
+
+
+        polygon = np.array([[pu1, pu2, pl2, pl1]], dtype=np.int32)
+    
+        mask = np.zeros((height, width, 3), dtype=np.uint8)
+
+        cv2.fillPoly(mask, polygon, (255, 255, 255))
+
+        # draw colored border on the polygon
+        cv2.polylines(mask, polygon, isClosed=True, color=(255, 0, 255), thickness=2)
+
+        masked_section = cv2.bitwise_and(image, mask)
+
+        sections.append(masked_section)
+
+    for i, masked_img in enumerate(sections):
+        filename = os.path.join(output_path, f"section_{i:02d}.png")
+        cv2.imwrite(filename, masked_img)
 
     return
 
 
 up_c, dw_c = get_contours(f)
 
-print("TAMANHO UPPER", len(up_c))
-print("TAMANHO LOWER", len(dw_c))
+# print("TAMANHO UPPER", len(up_c))
+# print("TAMANHO LOWER", len(dw_c))
 
 centerline = compute_centerline(up_c, dw_c)
 
@@ -170,3 +211,5 @@ plt.title("Interpolação de Contorno")
 plt.axis('equal')
 plt.grid(True)
 plt.show()
+
+visualize(f, spaced_up, spaced_down)
