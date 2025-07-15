@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 if len(sys.argv) != 3:
         sys.exit("Usage: python slicer.py path/to/image.png number_of_sections")
 
+# lkfjdhdlskf
 
 # save image file-name or path to variable f
 f = sys.argv[1]
