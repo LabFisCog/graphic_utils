@@ -57,7 +57,23 @@ def get_contours(img):
     # cv2.imshow('exemplo', image)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+
+    # pseudocódigo para obter o contorno:
+    # 1 - varrer a tela da esquerda para a direita até achar um píxel vermelho e/ou verde
+
+
+    # 2 - partindo dos pixels iniciais (um vermelho e um verde), construir o quadrado de vizinhança
+
+
+    # 3 - pegar a média de cor de cada quadrado da vizinhança 
+    # (recomendo criar uma função que recebe como parâmetros a imagem e os pontos inicial e final de determinado quadrado)
     
+
+    # 4 - achar qual quadrado tem mais vermelho/verde dentro dele e atualizar a variavel do pixel inicial com as coordenadas desse quadrado
+    
+
+    # 5 - salvar as posições numa lista para cada contorno
+
     up = np.array(up)
     down = np.array(down)
 
