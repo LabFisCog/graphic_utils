@@ -186,3 +186,5 @@ plt.title("Interpolação de Contorno")
 plt.axis('equal')
 plt.grid(True)
 plt.show()
+
+# asdasda
