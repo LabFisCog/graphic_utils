@@ -19,39 +19,52 @@ n_sections = int(sys.argv[2])
 interpoint_distance = 40
 dist_threshold = 10
 resolution = 600
-
+sq_size = (9,9)
+subsq_size = (3,3)
 def get_contours(img):
     # gets the image and extracts the points from the outter and inner contours
     image = cv2.imread(img)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    #print('imagem', image)
+   
+
 
 
     # Define the color range from the lines
-    up_color = cv2.inRange(image, (0, 70, 50), (10, 255, 255)) # Podemos, posteriormente colocar um dict com presets de cores pro usuário escolher qual cor é qual camada.
-    down_color = cv2.inRange(image, (40, 70, 50), (80, 255, 255))
+    # up_color = cv2.inRange(image, (0, 70, 50), (10, 255, 255)) # Podemos, posteriormente colocar um dict com presets de cores pro usuário escolher qual cor é qual camada.
+    # down_color = cv2.inRange(image, (40, 70, 50), (80, 255, 255))
 
 
     # Capture the contours of each line
-    up_contour, _ = cv2.findContours(up_color, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    down_contour, _ = cv2.findContours(down_color, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # up_contour, _ = cv2.findContours(up_color, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # down_contour, _ = cv2.findContours(down_color, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    up = []
-    down = []
+    # up = []
+    # down = []
 
-    for contour in up_contour:
-        for i in range(0, len(contour), interpoint_distance):  # <-- Pula de 10 em 10 pontos
-            x, y = contour[i][0]
-            up.append((x, y))
-            cv2.circle(image, (x, y), 10, (0, 255, 255), -1)
+    # for contour in up_contour:
+    #     central_sq = np.array([(contour[0]-1, contour[1]-1), (contour[0], contour[1]-1), (contour[0]+1, contour[1]-1)],
+    #                           [(contour[0]-1, contour[1]), contour, (contour[0]+1, contour[1])], 
+    #                           [(contour[0]-1, contour[1]+1), (contour[0], contour[1]+1), (contour[0]+1, contour[1]+1)])
 
-    for contour in down_contour:
-        for i in range(0, len(contour), interpoint_distance):  # <-- Mesmo aqui
-            x, y = contour[i][0]
-            down.append((x, y))
-            cv2.circle(image, (x, y), 10, (255, 0, 255), -1)
+    #     central_sq = np.zeros(sq_size) 
+    #     for i in central_sq:
+    #         for k in range(0, central_sq.shape[1]):
+                
+
+        # for i in range(0, len(contour), interpoint_distance):  # <-- Pula de 10 em 10 pontos
+        #     x, y = contour[i][0]
+        #     up.append((x, y))
+        #     cv2.circle(image, (x, y), 10, (0, 255, 255), -1)
+
+    # for contour in down_contour:
+    #     for i in range(0, len(contour), interpoint_distance):  # <-- Mesmo aqui
+    #         x, y = contour[i][0]
+    #         down.append((x, y))
+    #         cv2.circle(image, (x, y), 10, (255, 0, 255), -1)
     
-    if image is None:
-         print('Image could not be opened')
+    # if image is None:
+    #      print('Image could not be opened')
    
     # image = cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
     # cv2.imshow('exemplo', image)
@@ -60,8 +73,69 @@ def get_contours(img):
 
     # pseudocódigo para obter o contorno:
     # 1 - varrer a tela da esquerda para a direita até achar um píxel vermelho e/ou verde
+    first_green = []
+    first_red = []
+    br_g = False
+    br_r = False
+    div = sq_size[0]/subsq_size[0]
+    subsq_div = (subsq_size[0] - 1)/2
+    for i in range(len(image)):
+        for j in range(len(image[i])):
+            if (image[i,j] == np.array([34, 255, 6])).all() and br_g == False:
+                first_green = (i,j)
+                print('verde', image[i,j])
+                print('posição', (i,j))
+                br_g = True
 
+        for j in range(len(image[i])):
+            if (image[i,j] == np.array([251, 0, 7])).all() and br_r == False:
+                first_red = i,j
+                print('vermelho', image[i,j])
+                print('posição', (i,j))
+                br_r = True
 
+        print('verdao', first_green)
+        print('vermelhao', first_red)
+
+        if first_green == True:
+            k = first_green[0]
+            z = first_green[1]
+            p1x = k - (sq_size[0] -1)/2
+            p1y = z - (sq_size[1] -1)/2
+            p1 = (p1x, p1y)
+
+            p2x = k + (sq_size[0] -1)/2
+            p2y = z + (sq_size[1] -1)/2
+            p2 = (p2x, p2y)
+
+            for i in range(int(sq_size[0]), int(div)):
+                for j in range(int(sq_size[1]), int(div)):
+                
+                    g_subsq = {} # Vai conter todos os pontos dos sub square
+                    g_centers = [ # Contêm todos os centros de cada sub square. É provisório até eu arrumar um jeito de arrumar isso iterando.
+                        (first_green[0] - subsq_size[0], first_green[1] - subsq_size[1]), (first_green[0], first_green[1] - subsq_size[1]), (first_green[0] + subsq_size[0], first_green[1] - subsq_size[1]),
+                        (first_green[0] - subsq_size[0], first_green[1]), (first_green[0], first_green[1]), (first_green[0] + subsq_size[0], first_green[1]),
+                        (first_green[0] - subsq_size[0], first_green[1] + subsq_size[1]), (first_green[0], first_green[1] + subsq_size[1]), (first_green[0] + subsq_size[0], first_green[1] + subsq_size[1])
+                    ] 
+                    for a,c in enumerate(g_centers):  
+                        g_subsq[a] = [
+                        (c[0] - subsq_div, c[1] - subsq_div), (c[0], c[1] - subsq_div), (c[0] + subsq_div, c[1] - subsq_div),
+                        (c[0] - subsq_div, c[1]), (c[0], c[1]), (c[0] + subsq_div, c[1]),
+                        (c[0] - subsq_div, c[1] + subsq_div), (c[0], c[1] + subsq_div), (c[0] + subsq_div, c[1] + subsq_div) 
+                        ]
+                        print('opa', g_subsq)           
+        if first_red:
+            k = first_red[0]
+            z = first_green[1]
+            p1x = k - (sq_size[0] -1)/2
+            p1y = z - (sq_size[1] -1)/2
+            p1 = (p1x, p1y)
+
+            p2x = k + (sq_size[0] -1)/2
+            p2y = z + (sq_size[1] -1)/2
+            p2 = (p2x, p2y)
+                
+        
     # 2 - partindo dos pixels iniciais (um vermelho e um verde), construir o quadrado de vizinhança
 
 
@@ -74,19 +148,20 @@ def get_contours(img):
 
     # 5 - salvar as posições numa lista para cada contorno
 
-    up = np.array(up)
-    down = np.array(down)
+    # up = np.array(up)
+    # down = np.array(down)
 
-    up = up[np.argsort(up[:, 0])]
-    down = down[np.argsort(down[:, 0])]
+    # up = up[np.argsort(up[:, 0])]
+    # down = down[np.argsort(down[:, 0])]
     # print("UP!!! ", up)
     # print("\n\n\n")
     # print("DOWN!!!", down)
 
     # retornar uma lista de tuplas (x, y) para cada contorno ex.: out_cont = [(x1, y1), (x2, y2), (x3, y3)...]
-    return up, down
+    # return up, down
+    return
 
-
+get_contours(f)
    
 def interpolate_contours(contour, resolution, n_sections):
     # receives a contour and divides its length by the desired number of sections
@@ -152,39 +227,39 @@ def visualize(img, outer_points, inner_points):
     return
 
 
-up_c, dw_c = get_contours(f)
+# up_c, dw_c = get_contours(f)
 
-print("TAMANHO UPPER", len(up_c))
-print("TAMANHO LOWER", len(dw_c))
+# print("TAMANHO UPPER", len(up_c))
+# print("TAMANHO LOWER", len(dw_c))
 
-centerline = compute_centerline(up_c, dw_c)
+# centerline = compute_centerline(up_c, dw_c)
 
-spaced_up = interpolate_contours(up_c, resolution, n_sections)
-spaced_down = interpolate_contours(dw_c, resolution, n_sections)
-spaced_cl = interpolate_contours(centerline, resolution, n_sections)
+# spaced_up = interpolate_contours(up_c, resolution, n_sections)
+# spaced_down = interpolate_contours(dw_c, resolution, n_sections)
+# spaced_cl = interpolate_contours(centerline, resolution, n_sections)
 
-# Visualização
-plt.figure(figsize=(8, 6))
-original_points_np_up = np.array(up_c)
-original_points_np_down = np.array(dw_c)
-xs = (0, 100, 1)
-plt.plot(original_points_np_up[:, 0], original_points_np_up[:, 1], 'ro-', markersize=3, label='Originais_upper')
-plt.plot(original_points_np_down[:, 0], original_points_np_down[:, 1], 'go-', markersize=3, label='Originais_lower')
+# # Visualização
+# plt.figure(figsize=(8, 6))
+# original_points_np_up = np.array(up_c)
+# original_points_np_down = np.array(dw_c)
+# xs = (0, 100, 1)
+# plt.plot(original_points_np_up[:, 0], original_points_np_up[:, 1], 'ro-', markersize=3, label='Originais_upper')
+# plt.plot(original_points_np_down[:, 0], original_points_np_down[:, 1], 'go-', markersize=3, label='Originais_lower')
 
-# Plota as linhas que conectam os pares
-for p_up, p_down in zip(spaced_up, spaced_down):
-    x_vals = [p_up[0], p_down[0]]
-    y_vals = [p_up[1], p_down[1]]
-    plt.plot(x_vals, y_vals, color='blue')
+# # Plota as linhas que conectam os pares
+# for p_up, p_down in zip(spaced_up, spaced_down):
+#     x_vals = [p_up[0], p_down[0]]
+#     y_vals = [p_up[1], p_down[1]]
+#     plt.plot(x_vals, y_vals, color='blue')
 
-plt.plot(spaced_up[:, 0], spaced_up[:, 1], 'bo', markersize=8, label='Interpolados_upper')
-plt.plot(spaced_down[:, 0], spaced_down[:, 1], 'bo', markersize=8, label='Interpolados_lower')
-plt.plot(spaced_cl[:, 0], spaced_cl[:, 1], 'ro-', markersize=2, label='Interpolados_cl')
+# plt.plot(spaced_up[:, 0], spaced_up[:, 1], 'bo', markersize=8, label='Interpolados_upper')
+# plt.plot(spaced_down[:, 0], spaced_down[:, 1], 'bo', markersize=8, label='Interpolados_lower')
+# plt.plot(spaced_cl[:, 0], spaced_cl[:, 1], 'ro-', markersize=2, label='Interpolados_cl')
 
-plt.legend()
-plt.title("Interpolação de Contorno")
-plt.axis('equal')
-plt.grid(True)
-plt.show()
+# plt.legend()
+# plt.title("Interpolação de Contorno")
+# plt.axis('equal')
+# plt.grid(True)
+# plt.show()
 
 # asdasda
